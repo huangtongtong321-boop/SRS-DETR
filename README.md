@@ -1,6 +1,6 @@
 # SRS-DETR: DETR for Small Object Detection in Remote Sensing Images
 
-This is the official PyTorch implementation of the paper **"SRS-DETR: DETR for Small Object Detection in Remote Sensing Images"**.
+This is the code of the paper **"SRS-DETR: DETR for Small Object Detection in Remote Sensing Images"**.
 
 > SRS-DETR is a novel DETR-variant model specifically designed for small object detection in remote sensing images. It introduces three key designs — the **Deformable Feature Correlation (DFC)** module, the **Dynamic Multi-scale Sequence Fusion (DMSF)** module, and the **GWIoU** loss function — to jointly improve detection accuracy while keeping the computational cost under control.
 
@@ -8,12 +8,6 @@ This is the official PyTorch implementation of the paper **"SRS-DETR: DETR for S
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)]()
 
 ---
-
-## Framework
-
-![framework](figs/framework.png)
-
-*The overall architecture of SRS-DETR. The features {S3, S4, S5} are extracted from the backbone. S5 is first processed by the DFC module (denoted as F5), then {S3, S4, F5} are dynamically fused by the DMSF module, and finally the fused features are fed into the decoder. GWIoU is used as the box regression loss during training.*
 
 ## Abstract
 
@@ -27,9 +21,8 @@ Experimental results demonstrate that the mAP of SRS-DETR reaches **85.3%**, **9
 
 **Keywords:** remote sensing images, small object detection, DETR, attention mechanism, IoU loss.
 
-## News
+<img width="567" height="210" alt="image" src="https://github.com/user-attachments/assets/3b3b66d8-6a17-4b6b-8031-93ad7351ea85" />
 
-- **[2026.08]** Source code released.
 
 ## Requirements
 
@@ -41,30 +34,13 @@ The experiments were conducted under the following environment:
 - **PyTorch:** 2.1.0
 - **CUDA:** 12.1
 
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/<your-username>/SRS-DETR.git
-cd SRS-DETR
-
-# Create a conda environment (optional)
-conda create -n srs-detr python=3.10 -y
-conda activate srs-detr
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
 ## Datasets
 
 We evaluate SRS-DETR on three publicly available remote sensing datasets: **LEVIR-Ship**, **SSDD**, and **RSOD**.
 
-| Dataset | Category | Images | Classes | Official Link |
-|---|---|---|---|---|
-| LEVIR-Ship | Optical (micro ship) | 3,896 | 1 (ship) | [WindVChen/LEVIR-Ship](https://github.com/WindVChen/LEVIR-Ship) |
-| SSDD | SAR (ship) | 1,160 | 1 (ship) | [TianwenZhang0825/Official-SSDD](https://github.com/TianwenZhang0825/Official-SSDD) |
-| RSOD | Optical (multi-class) | 976 | 4 (aircraft / oiltank / playground / overpass) | [RSIA-LIESMARS-WHU/RSOD-Dataset-](https://github.com/RSIA-LIESMARS-WHU/RSOD-Dataset-) |
+LEVIR-Ship | Optical (micro ship) | 3,896 | 1 (ship) | [WindVChen/LEVIR-Ship](https://github.com/WindVChen/LEVIR-Ship) |
+SSDD | SAR (ship) | 1,160 | 1 (ship) | [TianwenZhang0825/Official-SSDD](https://github.com/TianwenZhang0825/Official-SSDD) |
+RSOD | Optical (multi-class) | 976 | 4 (aircraft / oiltank / playground / overpass) | [RSIA-LIESMARS-WHU/RSOD-Dataset-](https://github.com/RSIA-LIESMARS-WHU/RSOD-Dataset-) |
 
 ### LEVIR-Ship
 
@@ -86,41 +62,23 @@ RSOD is an open dataset for object detection in remote sensing images. It includ
 
 - **Download:** https://github.com/RSIA-LIESMARS-WHU/RSOD-Dataset-
 
-### Dataset Preparation
 
-Organize the downloaded datasets under a `datasets/` directory, for example:
+## Deformable Feature Correlation Module
 
-```
-datasets/
-├── levir-ship/
-│   ├── images/
-│   └── labels/
-├── ssdd/
-│   ├── images/
-│   └── labels/
-└── rsod/
-    ├── images/
-    └── labels/
-```
+<img width="377" height="356" alt="image" src="https://github.com/user-attachments/assets/02f1b18e-a2c4-4383-88b6-210eefc3159e" />
 
-> Please adjust the directory structure to match the data loading code in this repository.
+We propose the Deformable Feature Correlation (DFC) module. Specifically, we improve the Multi-head Self-Attention mechanism by introducing Deformable Attention, which reduces computational cost. Additionally, we combine the deformable sampled features with different image feature information, allowing the model to efficiently handle features at various scales and better fuse context information. This enhancement significantly improves the ability of the model to detect small objects.
 
-## Usage
+## Dynamic Multi-scale Sequence Fusion Module
+
+<img width="555" height="415" alt="image" src="https://github.com/user-attachments/assets/d19eeb45-d187-4385-9c4f-2295aa54cc40" />
+
+we propose a Dynamic Multi-scale Sequence Fusion (DMSF) module, We perform dynamic multi-scale sequence fusion operations on the {S3, S4, S5} feature maps. Specifically, each feature map in the DMSF module first undergoes a convolution operation. Next, a dynamic upsample operation is performed on the {S4, S5} feature maps. Dynamic upsample adjusts feature maps of different resolutions to a uniform resolution framework. This scaling is dynamic and dependent on the specific dimensions of the input feature maps, ensuring effective fusion of feature maps at different scales. 
+
+## GWIoU loss function
+Check the original text after the paper is published
 
 ### Training
-
-```bash
-# Train on LEVIR-Ship
-python train.py --dataset levir-ship
-
-# Train on SSDD
-python train.py --dataset ssdd
-
-# Train on RSOD
-python train.py --dataset rsod
-```
-
-The training hyper-parameters for each dataset are listed below:
 
 | Setting | LEVIR-Ship | SSDD | RSOD |
 |---|---|---|---|
@@ -129,92 +87,6 @@ The training hyper-parameters for each dataset are listed below:
 
 Common settings: batch size = 4, workers = 8, learning rate = 1e-4, optimizer = AdamW.
 
-### Testing / Evaluation
-
-```bash
-# Evaluate on the test set
-python test.py --dataset levir-ship --weights <path-to-checkpoint>
-```
-
-## Results
-
-### Main Results
-
-mAP is reported at IoU = 0.5 (mAP@0.5).
-
-**LEVIR-Ship**
-
-| Method | mAP(%) | Params(M) | GFLOPs |
-|---|---|---|---|
-| Improved YOLOv5 | 76.9 | - | - |
-| Ge et al. | 83.8 | - | - |
-| Zhou et al. | 79.6 | 271.0 | 70.8 |
-| ORFENet | 83.3 | 32.8 | 373.3 |
-| Ship-DETR | 75.7 | 14.7 | 43.5 |
-| DSFPAP-Net | 82.6 | 9.6 | 127.2 |
-| DF-Net | 84.7 | - | - |
-| YOLOv8 | 77.9 | 25.8 | 78.7 |
-| YOLOv9 | 76.4 | 20.0 | 76.5 |
-| YOLOv10 | 79.3 | 20.4 | 97.9 |
-| YOLOv11 | 79.4 | 20.0 | 67.7 |
-| YOLOv12 | 78.2 | 19.6 | 59.5 |
-| RT-DETR | 81.0 | 20.0 | 61.0 |
-| **SRS-DETR (ours)** | **85.3** | 20.2 | 61.7 |
-
-**SSDD**
-
-| Method | mAP(%) | Params(M) | GFLOPs |
-|---|---|---|---|
-| RSPrompter | 95.6 | - | - |
-| Two-Way Assistant | 95.4 | - | - |
-| FS-YOLO | 96.9 | 39.0 | - |
-| YOLOv8 | 96.8 | 25.8 | 78.7 |
-| YOLOv9 | 95.2 | 20.0 | 76.5 |
-| YOLOv10 | 95.5 | 20.4 | 97.9 |
-| YOLOv11 | 96.6 | 20.0 | 67.7 |
-| YOLOv12 | 96.1 | 19.6 | 59.5 |
-| RT-DETR | 96.2 | 20.0 | 61.0 |
-| **SRS-DETR (ours)** | **97.5** | 20.2 | 61.7 |
-
-**RSOD**
-
-| Method | mAP(%) | Params(M) | GFLOPs |
-|---|---|---|---|
-| MRFF-YOLO | 88.3 | - | - |
-| Dong et al. | 92.5 | - | - |
-| Xu and Wu | 88.7 | - | - |
-| CF2PN | 93.6 | 91.6 | - |
-| ABNet | 94.2 | 42.8 | 141.3 |
-| OYOLO | 92.8 | 40.4 | 36.0 |
-| YOLOv8 | 93.1 | 25.8 | 78.7 |
-| YOLOv9 | 92.1 | 20.0 | 76.5 |
-| YOLOv10 | 90.2 | 20.4 | 97.9 |
-| YOLOv11 | 95.1 | 20.0 | 67.7 |
-| YOLOv12 | 84.9 | 19.6 | 59.5 |
-| RT-DETR | 92.4 | 20.0 | 61.0 |
-| **SRS-DETR (ours)** | **96.3** | 20.2 | 61.7 |
-
-### Ablation Study (on LEVIR-Ship)
-
-| baseline | DFC | DMSF | GWIoU | mAP(%) | Params(M) | GFLOPs |
-|:---:|:---:|:---:|:---:|---|---|---|
-| √ | | | | 81.0 | 20.0 | 61.0 |
-| √ | √ | | | 82.4 | 19.9 | 57.2 |
-| √ | √ | √ | | 84.6 | 20.2 | 61.7 |
-| √ | √ | √ | √ | **85.3** | 20.2 | 61.7 |
-
-## Citation
-
-If you find this work useful in your research, please consider citing:
-
-```bibtex
-@article{yourname2026srsdetr,
-  title   = {SRS-DETR: DETR for Small Object Detection in Remote Sensing Images},
-  author  = {Your Name and Co-authors},
-  journal = {Your Journal},
-  year    = {2026}
-}
-```
 
 ## Acknowledgements
 
